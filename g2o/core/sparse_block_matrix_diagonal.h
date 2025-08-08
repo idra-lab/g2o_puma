@@ -61,6 +61,8 @@ namespace g2o {
         _blockIndices(blockIndices)
       {}
 
+      SparseBlockMatrixDiagonal(){};
+
       //! how many rows/cols does the block at block-row / block-column r has?
       inline int dimOfBlock(int r) const { return r ? _blockIndices[r] - _blockIndices[r-1] : _blockIndices[0] ; }
 
@@ -96,6 +98,36 @@ namespace g2o {
           // destVec += *A.transpose() * srcVec (according to the sub-vector parts)
           internal::axpy(A, srcVec, srcOffset, destVec, destOffset);
         }
+      }
+
+      // Template function to multiply a diagonal sparse block matrix with another sparse block matrix.
+      template <class MatrixResultType, class MatrixFactorType>
+      bool multiply( g2o::SparseBlockMatrix<MatrixResultType>*& dest, const g2o::SparseBlockMatrix<MatrixFactorType>* M) const
+      {
+          if (_blockIndices.size() != M->rows())
+              return false;
+
+          const std::vector<int>& colIndices = M->colBlockIndices();
+          if (!dest) {
+              dest = new g2o::SparseBlockMatrix<MatrixResultType>(
+                  &_blockIndices[0], &colIndices[0], _blockIndices.size(), colIndices.size());
+          }
+
+          if (!dest->_hasStorage()) return false;
+
+          for (size_t j = 0; j < M->blockCols().size(); ++j) {
+              const auto& Mcol = M->blockCols()[j];
+              for (auto it = Mcol.begin(); it != Mcol.end(); ++it) {
+                  int i = it->first;  // row index
+                  const MatrixFactorType* m = it->second;
+                  if (!m) continue;
+                  const MatrixType& diag = this->_diagonal[i];
+
+                  MatrixResultType* result = dest->block(i, j, true);
+                  (*result) += diag * (*m);
+              }
+          }
+          return true;
       }
 
     protected:

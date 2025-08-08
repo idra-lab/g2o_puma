@@ -210,6 +210,9 @@ class SparseBlockMatrix {
      */
     void takePatternFromHash(SparseBlockMatrixHashMap<MatrixType>& hashMatrix);
 
+
+    template <typename> friend class SparseBlockMatrix;
+    
   protected:
     std::vector<int> _rowBlockIndices; ///< vector of the indices of the blocks along the rows.
     std::vector<int> _colBlockIndices; ///< vector of the indices of the blocks along the cols

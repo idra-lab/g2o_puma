@@ -131,6 +131,9 @@ class LinearSolverEigen: public LinearSolver<MatrixType>
     virtual bool writeDebug() const { return _writeDebug;}
     virtual void setWriteDebug(bool b) { _writeDebug = b;}
 
+    const SparseMatrix& getSparseMatrix() const { return _sparseMatrix;}
+    const CholeskyDecomposition& getCholesky() const { return _cholesky;}
+
   protected:
     bool _init;
     bool _blockOrdering;

@@ -77,6 +77,7 @@ namespace g2o {
 
       virtual void mapHessianMemory(double*, int, int, bool) {assert(0 && "BaseUnaryEdge does not map memory of the Hessian");}
 
+
       using BaseEdge<D,E>::resize;
       using BaseEdge<D,E>::computeError;
 
